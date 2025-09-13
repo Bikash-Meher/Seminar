@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trained by AI: The New Paradigm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Setup --- */
+        :root {
+            --primary-color: #ffb800; /* Yellowish-Orange */
+            --secondary-color: #ff2525; /* Red */
+            --background-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --title-font: 'Orbitron', sans-serif;
+            --body-font: 'Roboto', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Prevent body scroll, scrolling is handled by slides */
+        }
+
+        /* --- Presentation Container --- */
+        .presentation-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 7rem 5rem 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            background-size: cover;
+            background-position: center center;
+            background-blend-mode: overlay;
+            overflow-y: auto; /* Allow vertical scrolling within a slide */
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 26, 0.85); /* Dark overlay */
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            z-index: 10;
+        }
+        
+        /* --- General Layout Structure --- */
+        .slide-header, .slide-content-wrapper, .page-number {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .slide-content-wrapper {
+             min-height: 100%;
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             width: 100%;
+        }
+
+        .slide-header {
+            position: absolute;
+            top: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 1rem;
+            width: calc(100% - 10rem);
+        }
+        
+        .slide-header h2 {
+            font-family: var(--title-font);
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 0; /* Add padding for content spacing */
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 2rem;
+            right: 5rem;
+            font-family: var(--title-font);
+            font-size: 1rem;
+            color: var(--primary-color);
+            opacity: 0.7;
+        }
+
+        /* --- Navigation Buttons --- */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            background: rgba(26, 26, 26, 0.5);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-family: var(--title-font);
+            font-size: 1.5rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-color);
+            color: var(--background-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        #prevBtn { left: 30px; }
+        #nextBtn { right: 30px; }
+        
+        /* --- Slide Specific Styles --- */
+        
+        /* Slide 1: Title (No Header/Page Number) */
+        #slide1 .slide-header, #slide1 .page-number { display: none; }
+        #slide1 .title {
+            font-family: var(--title-font);
+            font-size: clamp(3rem, 7vw, 6rem);
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+        }
+        #slide1 .subtitle {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            margin-top: 1rem;
+            color: #ccc;
+        }
+
+        /* Slide 2 */
+        #slide2 .split-screen { display: flex; width: 100%; gap: 4rem; align-items: center; }
+        #slide2 .split-screen > div { flex: 1; text-align: left; }
+        #slide2 p { font-size: 1.2rem; line-height: 1.7; max-width: 90%; }
+        #slide2 .main-goals { list-style: none; margin-top: 2rem; }
+        #slide2 .main-goals li { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; font-size: 1.2rem; }
+        #slide2 .goal-icon { width: 40px; height: 40px; color: var(--secondary-color); flex-shrink: 0; }
+
+        /* Slide 3 */
+        #slide3 .infographic-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 420px;
+        }
+        #slide3 .benefit-item {
+            width: 180px; height: 180px; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; gap: 0.5rem; text-align: center; border: 2px solid var(--primary-color);
+            border-radius: 50%; background: rgba(255, 184, 0, 0.05); transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #slide3 .benefit-item:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(255, 184, 0, 0.2); }
+        #slide3 .benefit-icon { width: 50px; height: 50px; color: var(--secondary-color); }
+        #slide3 span { font-size: 1.1rem; font-weight: bold; }
+
+        /* Slide 4 */
+        .flowchart { display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .flow-item {
+            border: 2px solid var(--primary-color); padding: 1.5rem 1rem; border-radius: 10px; width: 160px;
+            background: rgba(255, 184, 0, 0.05); text-align: center;
+        }
+        .flow-icon { width: 50px; height: 50px; color: var(--secondary-color); margin-bottom: 0.5rem; }
+        .flow-arrow { font-size: 2.5rem; color: var(--primary-color); }
+        #slide4 .flowchart-description { margin-bottom: 3rem; font-size: 1.2rem; }
+
+        /* Slide 5 */
+        #slide5 .split-screen { display: flex; width: 100%; gap: 4rem; align-items: center; }
+        #slide5 .split-screen > div { flex: 1; text-align: left; }
+        #slide5 p { font-size: 1.2rem; line-height: 1.7; }
+        #slide5 .blueprint-svg { width: 100%; max-width: 400px; color: var(--primary-color); }
+
+        /* Slide 6 */
+        #slide6 .versus-layout { display: flex; justify-content: space-around; align-items: center; width: 100%; gap: 1rem;}
+        #slide6 .ai-entity { text-align: center; }
+        #slide6 .ai-entity h3 { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 1rem; }
+        #slide6 .versus-icon { font-size: 6rem; }
+        #slide6 #generator-icon { color: var(--secondary-color); }
+        #slide6 #discriminator-icon { color: var(--primary-color); }
+        #slide6 .versus-text { font-size: 5rem; font-family: var(--title-font); color: #fff; }
+        #slide6 .versus-description { margin-bottom: 3rem; font-size: 1.2rem; }
+
+        /* Slide 7 */
+        #slide7 .applications { display: flex; gap: 2rem; margin-top: 2rem; width: 100%; }
+        #slide7 .app-column { flex: 1; padding: 1.5rem; border: 2px solid var(--primary-color); border-radius: 10px; background: rgba(255, 184, 0, 0.05); }
+        #slide7 .app-column h3 { color: var(--secondary-color); margin-bottom: 1rem; }
+        #slide7 .app-column ul { list-style-position: inside; text-align: left; }
+
+        /* Slide 8 */
+        #slide8 .challenges-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; width: 100%; max-width: 1000px;}
+        .challenge-box { border: 2px solid var(--secondary-color); border-radius: 15px; padding: 2rem; text-align: center; background: rgba(255, 37, 37, 0.05); }
+        .challenge-box .challenge-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--secondary-color); }
+        .challenge-box h3 { color: #fff; }
+
+        /* Slide 9 */
+        #slide9 .timeline { display: flex; align-items: center; justify-content: space-between; width: 80%; position: relative; padding: 2rem 0; }
+        #slide9 .timeline::before { content: ''; position: absolute; width: 100%; height: 4px; background: var(--primary-color); top: 50%; left: 0; transform: translateY(-50%);}
+        .timeline-item { display: flex; flex-direction: column; align-items: center; gap: 1rem; z-index: 1; }
+        .timeline-dot { width: 30px; height: 30px; border-radius: 50%; background: var(--background-color); border: 4px solid var(--primary-color); }
+        .timeline-item.agi .timeline-dot { border-color: var(--secondary-color); box-shadow: 0 0 20px var(--secondary-color); }
+        .timeline-label { font-family: var(--title-font); font-size: 1.5rem; }
+        #slide9 .timeline-description { margin-bottom: 3rem; font-size: 1.2rem; }
+
+        /* Slide 10 */
+        #slide10 .conclusion-layout { display: flex; width: 100%; align-items: center; gap: 4rem; }
+        #slide10 .handshake-icon { flex-shrink: 0; width: 200px; height: 200px; color: var(--primary-color); }
+        #slide10 .key-points { display: flex; flex-direction: column; gap: 1.5rem; text-align: left; }
+        #slide10 .key-point { font-size: 1.2rem; }
+
+        /* Slide 11 */
+        #slide11 .qa-icon { width: 150px; height: 150px; color: var(--primary-color); }
+        #slide11 h2 { font-size: 5rem; margin-top: 2rem; font-family: var(--title-font); text-transform: uppercase; }
+        
+        /* --- Animations --- */
+        .anim-target {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 1024px) {
+             .split-screen, .conclusion-layout, #slide7 .applications { flex-direction: column; text-align: center; }
+             #slide2 .split-screen > div, #slide5 .split-screen > div { text-align: center; }
+             #slide2 p, #slide5 p { max-width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 6rem 1.5rem 2rem; }
+            .slide-header { top: 2rem; width: calc(100% - 3rem);}
+            .page-number { bottom: 1.5rem; right: 1.5rem; }
+            .nav-btn { width: 50px; height: 50px; font-size: 1.2rem; }
+            #prevBtn { left: 15px; }
+            #nextBtn { right: 15px; }
+
+            .split-screen, .versus-layout, .conclusion-layout, .timeline, #slide3 .infographic-container, #slide7 .applications { flex-direction: column; }
+            #slide3 .infographic-container { grid-template-columns: repeat(2, 1fr); max-width: 100%; gap: 1rem; }
+            #slide3 .benefit-item { width: 140px; height: 140px; }
+            #slide8 .challenges-grid { grid-template-columns: 1fr; }
+            .flowchart { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); margin: 0.5rem 0; }
+            #slide10 .handshake-icon { width: 150px; height: 150px; }
+            #slide11 h2 { font-size: 3rem; }
+        }
+
+         @media (max-width: 480px) {
+            #slide3 .infographic-container { grid-template-columns: 1fr; }
+            #slide6 .versus-text { font-size: 3rem;}
+            #slide6 .versus-icon {font-size: 4rem;}
+         }
+
+    </style>
+</head>
+<body>
+    
+    <div class="presentation-container">
+
+        <!-- Slide 1: Title -->
+        <section class="slide" id="slide1" style="background-image: url('1.png')">
+            <div class="slide-content-wrapper">
+                <div class="slide-content">
+                    <h1 class="title anim-target">AI Trained by AI</h1>
+                    <p class="subtitle anim-target">The New Paradigm of Automated Learning</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: What is AI Training AI? -->
+        <section class="slide" id="slide2" style="background-image: url('2.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">What is 'AI Training AI'?</h2></header>
+                <div class="slide-content split-screen">
+                    <div class="core-idea">
+                        <p class="anim-target">Using one AI system to teach, guide, or build another. Instead of a human doing all the work, an AI acts as a 'teacher' for a 'student' AI.</p>
+                    </div>
+                    <div class="main-goals-container">
+                        <h3 class="anim-target" style="color: var(--secondary-color); font-family: var(--title-font); margin-bottom: 1rem;">Main Goals:</h3>
+                        <ul class="main-goals">
+                            <li class="anim-target">
+                                <svg class="goal-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M17.925 3.991a.998.998 0 00-1.33-.213l-4.233 2.646A5.01 5.01 0 0010.5 6c-2.757 0-5 2.243-5 5s2.243 5 5 5a5.002 5.002 0 004.832-3.575l4.233 2.646a1 1 0 10.992-1.688l-4.233-2.646A4.983 4.983 0 0015.5 11c0-2.42-1.72-4.441-4-4.899l4.117-2.574a.998.998 0 00.216-1.33zM10.5 14c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3z"/></svg>
+                                <span>Automate the hard parts</span>
+                            </li>
+                            <li class="anim-target">
+                                <svg class="goal-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm11.293 4.707a1 1 0 00-1.414-1.414L10 9.586 7.121 6.707a1 1 0 00-1.414 1.414L8.586 11l-2.879 2.879a1 1 0 101.414 1.414L10 12.414l2.879 2.879a1 1 0 001.414-1.414L11.414 11l2.879-2.879z" clip-rule="evenodd"/></svg>
+                                <span>Discover smarter models</span>
+                            </li>
+                            <li class="anim-target">
+                                <svg class="goal-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a1 1 0 000 2h14a1 1 0 100-2H3zm0 4a1 1 0 100 2h14a1 1 0 100-2H3zm0 4a1 1 0 100 2h14a1 1 0 100-2H3zm0 4a1 1 0 100 2h14a1 1 0 100-2H3z"/></svg>
+                                <span>Create better data</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="page-number">2 / 11</div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Why is This Important? -->
+        <section class="slide" id="slide3" style="background-image: url('3.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Why is This Important?</h2></header>
+                <div class="slide-content infographic-container">
+                    <div class="benefit-item anim-target">
+                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Faster Progress</span>
+                    </div>
+                    <div class="benefit-item anim-target">
+                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <span>Smarter Solutions</span>
+                    </div>
+                    <div class="benefit-item anim-target">
+                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m-9 9h18"></path></svg>
+                        <span>Accessibility</span>
+                    </div>
+                    <div class="benefit-item anim-target">
+                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        <span>Solves Big Problems</span>
+                    </div>
+                </div>
+                <div class="page-number">3 / 11</div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Method 1 -->
+        <section class="slide" id="slide4" style="background-image: url('4.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Method 1: The AI Assistant (AutoML)</h2></header>
+                <div class="slide-content">
+                    <p class="flowchart-description anim-target">AI manages the training process end-to-end.</p>
+                    <div class="flowchart">
+                        <div class="flow-item anim-target">
+                            <svg class="flow-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 000 2h14a1 1 0 100-2H3zM3 7a1 1 0 000 2h14a1 1 0 100-2H3zM3 11a1 1 0 100 2h14a1 1 0 100-2H3zM3 15a1 1 0 100 2h14a1 1 0 100-2H3z"/></svg>
+                            <span>Prepares Data</span>
+                        </div>
+                        <div class="flow-arrow anim-target">&rarr;</div>
+                        <div class="flow-item anim-target">
+                            <svg class="flow-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm11.293 4.707a1 1 0 00-1.414-1.414L10 9.586 7.121 6.707a1 1 0 00-1.414 1.414L8.586 11l-2.879 2.879a1 1 0 101.414 1.414L10 12.414l2.879 2.879a1 1 0 001.414-1.414L11.414 11l2.879-2.879z" clip-rule="evenodd"/></svg>
+                            <span>Selects Algorithm</span>
+                        </div>
+                        <div class="flow-arrow anim-target">&rarr;</div>
+                        <div class="flow-item anim-target">
+                            <svg class="flow-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M17.925 3.991a.998.998 0 00-1.33-.213l-4.233 2.646A5.01 5.01 0 0010.5 6c-2.757 0-5 2.243-5 5s2.243 5 5 5a5.002 5.002 0 004.832-3.575l4.233 2.646a1 1 0 10.992-1.688l-4.233-2.646A4.983 4.983 0 0015.5 11c0-2.42-1.72-4.441-4-4.899l4.117-2.574a.998.998 0 00.216-1.33zM10.5 14c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3z"/></svg>
+                            <span>Tunes Settings</span>
+                        </div>
+                        <div class="flow-arrow anim-target">&rarr;</div>
+                        <div class="flow-item anim-target">
+                            <svg class="flow-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            <span>Result</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number">4 / 11</div>
+            </div>
+        </section>
+        
+        <!-- Slide 5: Method 2 -->
+        <section class="slide" id="slide5" style="background-image: url('51.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Method 2: The AI Architect (NAS)</h2></header>
+                <div class="slide-content split-screen">
+                    <div class="anim-target">
+                        <p>(Neural Architecture Search) - An AI 'controller' proposes a design, tests it, learns, and improves the design until the best one is found.</p>
+                    </div>
+                    <div class="anim-target">
+                         <svg class="blueprint-svg" viewBox="0 0 100 100">
+                             <defs><filter id="blueprintGlow"><feGaussianBlur stdDeviation="1" /></filter></defs>
+                             <g fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" opacity="0.5">
+                                 <path d="M10 10 H 90 V 90 H 10 Z"/>
+                                 <path d="M10 50 H 90 M 50 10 V 90"/>
+                             </g>
+                             <g fill="currentColor" stroke="currentColor" stroke-width="0.5" filter="url(#blueprintGlow)">
+                                 <circle cx="25" cy="25" r="5" /> <circle cx="25" cy="50" r="5" /> <circle cx="25" cy="75" r="5" />
+                                 <circle cx="50" cy="37.5" r="5" /> <circle cx="50" cy="62.5" r="5" />
+                                 <circle cx="75" cy="50" r="5" />
+                             </g>
+                             <g fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.7">
+                                 <path d="M30 25 L 45 37.5" /> <path d="M30 25 L 45 62.5" />
+                                 <path d="M30 50 L 45 37.5" /> <path d="M30 50 L 45 62.5" />
+                                 <path d="M30 75 L 45 37.5" /> <path d="M30 75 L 45 62.5" />
+                                 <path d="M55 37.5 L 70 50" /> <path d="M55 62.5 L 70 50" />
+                             </g>
+                         </svg>
+                    </div>
+                </div>
+                <div class="page-number">5 / 11</div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Method 3 -->
+        <section class="slide" id="slide6" style="background-image: url('62.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Method 3: AI vs AI (Adversarial)</h2></header>
+                <div class="slide-content">
+                    <p class="versus-description anim-target">Two AIs train by competing. This competition forces both to improve rapidly.</p>
+                    <div class="versus-layout">
+                        <div class="ai-entity anim-target">
+                            <div class="versus-icon" id="generator-icon">🤖</div>
+                            <h3>Generator</h3>
+                            <p>Creates fake data</p>
+                        </div>
+                        <div class="versus-text anim-target">VS</div>
+                        <div class="ai-entity anim-target">
+                            <div class="versus-icon" id="discriminator-icon">🛡️</div>
+                            <h3>Discriminator</h3>
+                            <p>Detects real vs fake</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number">6 / 11</div>
+            </div>
+        </section>
+        
+        <!-- Slide 7: GANs -->
+        <section class="slide" id="slide7" style="background-image: url('7.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Real-World Example: GANs</h2></header>
+                <div class="slide-content">
+                    <p class="anim-target" style="max-width: 800px; font-size: 1.2rem;">Generative Adversarial Networks revolutionized creative AI by pitting a Generator against a Discriminator.</p>
+                    <div class="applications">
+                        <div class="app-column anim-target">
+                            <h3>AI Art & Media</h3>
+                            <ul> <li>DALL-E</li> <li>Midjourney</li> <li>Stable Diffusion</li> </ul>
+                        </div>
+                        <div class="app-column anim-target">
+                            <h3>Data Augmentation</h3>
+                            <ul> <li>Synthetic medical data</li> <li>Boosting datasets</li> <li>Simulations</li> </ul>
+                        </div>
+                        <div class="app-column anim-target">
+                            <h3>Deepfakes</h3>
+                            <ul> <li>Realistic fake videos</li> <li>Voice synthesis</li> <li>Ethical concerns</li> </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number">7 / 11</div>
+            </div>
+        </section>
+
+        <!-- Slide 8: Challenges -->
+        <section class="slide" id="slide8" style="background-image: url('8.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Challenges & Ethical Considerations</h2></header>
+                <div class="slide-content">
+                    <div class="challenges-grid">
+                        <div class="challenge-box anim-target">
+                            <div class="challenge-icon">⚠️</div> <h3>Black Box Problem</h3> <p>Hard to understand AI decisions.</p>
+                        </div>
+                        <div class="challenge-box anim-target">
+                            <div class="challenge-icon">⚖️</div> <h3>Control & Alignment</h3> <p>Keeping AI aligned with human goals.</p>
+                        </div>
+                        <div class="challenge-box anim-target">
+                            <div class="challenge-icon">🔒</div> <h3>Bias Amplification</h3> <p>AI teachers may pass on biases.</p>
+                        </div>
+                        <div class="challenge-box anim-target">
+                            <div class="challenge-icon">🖥️</div> <h3>Resource Concentration</h3> <p>High compute cost favors big tech.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number">8 / 11</div>
+            </div>
+        </section>
+        
+        <!-- Slide 9: The Future -->
+        <section class="slide" id="slide9" style="background-image: url('93.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">The Future: Self-Improving Systems</h2></header>
+                <div class="slide-content">
+                    <p class="timeline-description anim-target">The ultimate goal: an AI that can recursively improve itself, leading to an 'intelligence explosion'.</p>
+                    <div class="timeline">
+                        <div class="timeline-item anim-target"> <div class="timeline-dot"></div> <div class="timeline-label">AI v1</div> </div>
+                        <div class="timeline-item anim-target"> <div class="timeline-dot"></div> <div class="timeline-label">AI v2</div> </div>
+                        <div class="timeline-item anim-target"> <div class="timeline-dot"></div> <div class="timeline-label">AI v3</div> </div>
+                        <div class="timeline-item agi anim-target"> <div class="timeline-dot"></div> <div class="timeline-label" style="color: var(--secondary-color);">AGI</div> </div>
+                    </div>
+                </div>
+                <div class="page-number">9 / 11</div>
+            </div>
+        </section>
+        
+        <!-- Slide 10: Conclusion -->
+        <section class="slide" id="slide10" style="background-image: url('101.png')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Conclusion</h2></header>
+                <div class="slide-content conclusion-layout">
+                    <div class="anim-target">
+                        <svg class="handshake-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M14.2,9.3c-0.9-0.4-1.8-0.8-2.5-1.3C11,7.5,10.4,7,9.7,7c-0.5,0-1,0.2-1.3,0.6L4.9,11.1c-0.6,0.6-0.6,1.5,0,2.1l0,0c0.6,0.6,1.5,0.6,2.1,0l3.5-3.5c0.2-0.2,0.5-0.2,0.7,0s0.2,0.5,0,0.7l-2.4,2.4c-0.4,0.4-0.4,1,0,1.4s1,0.4,1.4,0l3.8-3.8c0.6-0.6,0.8-1.3,0.6-2C14.5,9.5,14.3,9.4,14.2,9.3z"/><path d="M19.1,11.5L15,7.4c-0.6-0.6-1.5-0.6-2.1,0l-0.5,0.5c-0.1,0.1-0.3,0.2-0.5,0.2s-0.4-0.1-0.5-0.2l-0.5-0.5c-0.6-0.6-1.5-0.6-2.1,0l-1,1c-0.6,0.6-0.6,1.5,0,2.1l0.5,0.5c0.1,0.1,0.2,0.3,0.2,0.5s-0.1,0.4-0.2,0.5l-0.5,0.5c-0.6,0.6-0.6,1.5,0,2.1l1,1c0.6,0.6,1.5,0.6,2.1,0l0.5-0.5c0.1-0.1,0.3-0.2,0.5-0.2s0.4,0.1,0.5,0.2l0.5,0.5c0.6,0.6,1.5,0.6,2.1,0l4.1-4.1C19.7,13,19.7,12,19.1,11.5z"/></svg>
+                    </div>
+                    <div class="key-points anim-target">
+                        <p class="key-point anim-target">'AI Trained by AI' shifts development from manual tuning to full automation.</p>
+                        <p class="key-point anim-target">Key methods like AutoML, NAS, and GANs are driving faster, more powerful AI.</p>
+                        <p class="key-point anim-target">The future requires careful human-AI collaboration to navigate ethical risks.</p>
+                    </div>
+                 </div>
+                <div class="page-number">10 / 11</div>
+            </div>
+        </section>
+        
+        <!-- Slide 11: Q&A -->
+        <section class="slide" id="slide11" style="background-image: url('https://placehold.co/1920x1080/1a1a1a/ffb800?text=')">
+            <div class="slide-content-wrapper">
+                <header class="slide-header"><h2 class="anim-target">Q & A</h2></header>
+                <div class="slide-content">
+                    <svg class="qa-icon anim-target" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                    <h2 class="anim-target">Any Questions?</h2>
+                </div>
+                <div class="page-number">11 / 11</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigation -->
+    <button class="nav-btn" id="prevBtn">&lt;</button>
+    <button class="nav-btn" id="nextBtn">&gt;</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+                
+                animateSlide(index);
+
+                prevBtn.style.display = index === 0 ? 'none' : 'flex';
+                nextBtn.style.display = index === slides.length - 1 ? 'none' : 'flex';
+            }
+            
+            function animateSlide(index) {
+                const currentSlideElement = slides[index];
+                const elementsToAnimate = currentSlideElement.querySelectorAll('.anim-target');
+                
+                // Stagger the animation for each element
+                elementsToAnimate.forEach((el, i) => {
+                    // Reset animation state
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(20px)';
+                    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                    el.style.transitionDelay = `${0.2 + i * 0.15}s`;
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, 50); // Small delay to ensure styles are applied
+                });
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                }
+            });
+
+            // Initial load
+            showSlide(currentSlide);
+        });
+    </script>
+</body>
+</html>
+
